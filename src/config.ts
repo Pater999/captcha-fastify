@@ -1,6 +1,7 @@
 const { env } = process;
 
 export const configs = {
+	NODE_ENV: env.NODE_ENV ?? 'production',
 	PORT: env.PORT ? Number.parseInt(env.PORT) : 3000,
 	HOST: env.HOST ?? '0.0.0.0',
 	CAPTCHA_OPTIONS: {

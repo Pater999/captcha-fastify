@@ -19,6 +19,7 @@ This repository provides a Captcha service built with Node.js, TypeScript, and F
 *   **Docker:** Containerization for easy deployment and consistent environments (using Docker Compose).
 *   **GitHub Actions CI:** Automated testing and linting on every push and pull request.
 *   **HTML Test Page:** Includes a simple HTML page for easy testing of the API endpoints.
+*   **Swagger/OpenAPI Documentation:**  Provides interactive API documentation (enabled only in development).
 
 ## Getting Started
 
@@ -104,6 +105,12 @@ This repository provides a Captcha service built with Node.js, TypeScript, and F
 ### Testing the API
 
 An HTML page (`basic-frontend.html`) is included for easy testing of the API endpoints directly in your browser.  Simply open `basic-frontend.html` in your browser after starting the server.  The page provides a user interface to generate, display, and validate captchas.
+
+### Swagger/OpenAPI Documentation
+
+**Swagger UI is enabled only when `NODE_ENV` is set to `development`.**  You can access the interactive API documentation at:
+
+- http://127.0.0.1:3000/documentation
 
 ### Docker Compose
 

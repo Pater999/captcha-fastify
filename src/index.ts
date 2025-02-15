@@ -6,6 +6,7 @@ import type { ICaptchaRepository } from './core/captcha/captcha.repository.inter
 import { PostgresCaptchaRepository } from './infrastructure/captcha/captcha.repository';
 import { CaptchaService } from './infrastructure/captcha/captcha.service';
 import { CaptchaController } from './infrastructure/controllers/captcha.controller';
+import { setupSwagger } from './openapi';
 import routes from './routes';
 
 const fastify: FastifyInstance = Fastify({ logger: true });
@@ -21,10 +22,6 @@ const captchaService = new CaptchaService(captchaRepository, {
 
 const captchaController = new CaptchaController(captchaService);
 
-fastify.register(routes, { controller: captchaController });
-
-fastify.register(cors, {});
-
 fastify.get('/health', async (request, reply) => {
 	reply.send('Okay!');
 });
@@ -32,6 +29,11 @@ fastify.get('/health', async (request, reply) => {
 // --- Server Start ---
 const start = async () => {
 	try {
+		if (configs.NODE_ENV === 'development') await setupSwagger(fastify);
+
+		await fastify.register(routes, { controller: captchaController });
+		await fastify.register(cors, {});
+
 		await fastify.listen({
 			host: configs.HOST,
 			port: configs.PORT,
