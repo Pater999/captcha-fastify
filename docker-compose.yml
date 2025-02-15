@@ -1,5 +1,6 @@
 services:
   captcha-service:
+    container_name: captcha-app
     build: . 
     ports:
      - "3000:3000"

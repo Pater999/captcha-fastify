@@ -28,7 +28,10 @@ fastify.get('/health', async (request, reply) => {
 // --- Server Start ---
 const start = async () => {
 	try {
-		await fastify.listen({ port: configs.PORT });
+		await fastify.listen({
+			host: configs.HOST,
+			port: configs.PORT,
+		});
 	} catch (err) {
 		fastify.log.error(err);
 		process.exit(1);
