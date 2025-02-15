@@ -1,1 +1,1 @@
-console.log("Executing setup...");
+console.log('Executing setup...');
