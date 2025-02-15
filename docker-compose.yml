@@ -1,9 +1,10 @@
 services:
-  my-app:
+  captcha-service:
+    container_name: captcha-app
     build: . 
-    # ports:
-    #  - "3000:3000" # Example: Maps container port 3000 to host port 3000. Adjust as needed.
-    # If you need to set environment variables:
+    ports:
+     - "3000:3000"
     environment:
        - NODE_ENV=production
-    restart: always # Optional: Restarts the container if it crashes
+       - PORT=3000
+    restart: always

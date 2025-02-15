@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Captcha Test</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px; 
+        }
+
+        #captcha-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+            background-color: white;
+            padding: 30px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #captcha-image {
+            width: 300px;  
+            height: 150px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            background-color: #eee; 
+        }
+
+        #captcha-input {
+            padding: 10px; 
+            margin-bottom: 20px; 
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            width: 280px;  
+        }
+
+        #button-container {
+            display: flex;
+            gap: 10px; 
+        }
+
+        button {
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px; 
+            transition: background-color 0.3s ease; 
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+		button:disabled {
+            background-color: #cccccc; 
+            cursor: not-allowed;    
+        }
+
+        #result {
+            margin-top: 20px;  
+            font-weight: bold;
+            font-size: 18px;    
+            text-align: center; 
+            min-height: 24px; 
+        }
+
+        .error {
+            color: red;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .loading {
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <h1>Captcha Test</h1>
+
+    <div id="captcha-container">
+        <img id="captcha-image" src="" alt="Captcha Image">
+        <input type="text" id="captcha-input" placeholder="Enter captcha text">
+        <div id="button-container">
+            <button id="validate-button">Validate</button>
+            <button id="refresh-button">Refresh</button>
+        </div>
+    </div>
+
+    <div id="result"></div>
+
+    <script>
+        const captchaImage = document.getElementById('captcha-image');
+        const captchaInput = document.getElementById('captcha-input');
+        const validateButton = document.getElementById('validate-button');
+        const refreshButton = document.getElementById('refresh-button');
+        const resultDiv = document.getElementById('result');
+
+        let captchaId = null;
+
+        async function loadCaptcha() {
+            try {
+                resultDiv.textContent = 'Loading...';
+                resultDiv.classList.add('loading');
+                resultDiv.classList.remove('error', 'success');
+                captchaImage.src = ""; 
+                disableButtons();
+
+
+                const response = await fetch('http://127.0.0.1:3000/captcha');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                captchaId = data.id;
+                captchaImage.src = 'data:image/svg+xml;base64,' + data.data;
+                resultDiv.textContent = '';
+                resultDiv.classList.remove('loading');
+                captchaInput.value = '';
+            } catch (error) {
+                console.error('Error loading captcha:', error);
+                resultDiv.textContent = 'Error loading captcha. Please start the dev server. pnpm run dev or docker compose up';
+                resultDiv.classList.add('error');
+                resultDiv.classList.remove('loading');
+
+            } finally{
+                enableButtons();
+            }
+        }
+
+        async function validateCaptcha() {
+            if (!captchaId) {
+                resultDiv.textContent = 'Please load a captcha first.';
+                resultDiv.classList.add('error');
+                return;
+            }
+
+            try {
+                resultDiv.textContent = "Validating..."
+                resultDiv.classList.add('loading');
+                resultDiv.classList.remove('error', 'success');
+                disableButtons();
+
+
+                const response = await fetch('http://127.0.0.1:3000/captcha/validate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: captchaId,
+                        value: captchaInput.value
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message}`);
+                }
+                const data = await response.json();
+                resultDiv.classList.remove('loading');
+
+                if (data.valid) {
+                    resultDiv.textContent = 'Captcha is valid!';
+                    resultDiv.classList.add('success');
+                    await loadCaptcha(); // Load a new captcha after successful validation
+                } else {
+                    resultDiv.textContent = 'Captcha is invalid. Please try again.';
+                    resultDiv.classList.add('error');  // Keep error class for styling
+                }
+
+
+
+            } catch (error) {
+                console.error('Error validating captcha:', error);
+                resultDiv.textContent = `Error: ${error.message}`;
+                resultDiv.classList.remove('loading'); //Remove loading class
+                resultDiv.classList.add('error');
+            } finally{
+                enableButtons();
+            }
+        }
+
+        function disableButtons() {
+            validateButton.disabled = true;
+            refreshButton.disabled = true;
+        }
+
+        function enableButtons(){
+            validateButton.disabled = false;
+            refreshButton.disabled = false;
+        }
+
+        validateButton.addEventListener('click', validateCaptcha);
+        refreshButton.addEventListener('click', loadCaptcha);
+
+        // Initial load
+        loadCaptcha();
+
+    </script>
+</body>
+</html>

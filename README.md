@@ -1,39 +1,44 @@
-# Node.js TypeScript Boilerplate
+# Node.js TypeScript Captcha Service
 
-This repository provides a solid foundation for building Node.js applications with TypeScript, incorporating best practices and essential tools for modern development. It's designed to get you started quickly with a well-structured project and a robust development workflow.
+This repository provides a Captcha service built with Node.js, TypeScript, and Fastify. It follows clean architecture principles.
 
 ## Features
 
-* **TypeScript:** Static typing for enhanced code quality and maintainability.
-* **Vitest:** A fast and easy-to-use unit testing framework.
-* **Biome.js:** A fast and opinionated linter and formatter.
-* **Pre-commit Hooks (Lefthook):** Automate code checks before each commit to ensure code quality.
-* **Docker:** Containerization for easy deployment and consistent environments (using Docker Compose).
-* **GitHub Actions CI:** Automated testing and linting on every push and pull request.
+*   **Fastify:** A fast and low-overhead web framework for Node.js.
+*   **TypeScript:** Static typing for enhanced code quality, maintainability, and developer experience.
+*   **Clean Architecture:**  Separation of concerns into layers (Core, Infrastructure, Routes, Controllers) for a highly organized and testable codebase.
+    *   **Core:**  Contains the application's business logic and interfaces (ports). This layer is independent of any framework or external dependencies.
+    *   **Infrastructure:**  Implements the interfaces defined in the `core` layer (adapters).  This includes the repository, service, and controllers.
+    *   **Routes:** Defines the API endpoints using Fastify.
+*   **Dependency Injection:**  Uses manual dependency injection for loose coupling and easy testing.
+*   **SVG Captcha Generation:** Uses the `svg-captcha` library to generate secure and customizable captchas.
+*   **In-Memory Captcha Storage:** Uses an in-memory store for captcha data (easily swappable for a persistent store like Redis, PostgreSQL, etc.).
+*   **Vitest:**  A fast and easy-to-use unit testing framework. Includes comprehensive unit tests for the service and controller layers.
+*   **Biome.js:** A fast and opinionated linter and formatter for consistent code style.
+*   **Pre-commit Hooks (Lefthook):**  Automates code checks (linting, formatting, testing) before each commit to ensure code quality.
+*   **Docker:** Containerization for easy deployment and consistent environments (using Docker Compose).
+*   **GitHub Actions CI:** Automated testing and linting on every push and pull request.
+*   **HTML Test Page:** Includes a simple HTML page for easy testing of the API endpoints.
 
 ## Getting Started
 
 ### Prerequisites
 
-* [Node.js](https://nodejs.org/) (>=22, LTS version recommended)
-* [pnpm](https://pnpm.io/) (>=10, Recommended package manager)
-* [Docker](https://www.docker.com/)
-* [Docker Compose](https://docs.docker.com/compose/install/)
+*   [Node.js](https://nodejs.org/) (>=22, LTS version recommended)
+*   [pnpm](https://pnpm.io/) (>=10, Recommended package manager)
+*   [Docker](https://www.docker.com/) (Optional, for containerized deployment)
+*   [Docker Compose](https://docs.docker.com/compose/install/) (Optional, for containerized deployment)
 
 ### Installation
 
-1. Clone the repository:
+1.  Clone the repository:
 
     ```bash
-    git clone https://github.com/Pater999/node-boilerplate.git
+    git clone https://github.com/Pater999/captcha-fastify.git
+    cd captcha-fastify
     ```
 
-2. Navigate to the project directory:
-    ```bash
-    cd node-boilerplate
-    ```
-
-3. Install dependencies:   
+2.  Install dependencies:
 
     ```bash
     pnpm install
@@ -41,59 +46,43 @@ This repository provides a solid foundation for building Node.js applications wi
 
 ### Development
 
-- Running the app in development mode
+*   Running the app in development mode:
 
     ```bash
     pnpm run dev
     ```
 
-- Running tests
+*   Running tests:
+
     ```bash
     pnpm run test
     ```
 
-- Running the linter and formatter
+*   Running the linter and formatter:
+
     ```bash
-    pnpm run lint
+    pnpm run lint # To check lint errors
+    pnpm run format # To fix lint errors
     ```
 
-- Building the Docker image
+*   Building the Docker image:
+
     ```bash
     docker build -t <your-image-name> .
     ```
 
-- Running the Docker container with Docker Compose
+*   Running the Docker container with Docker Compose:
+
     ```bash
     docker-compose up -d
     ```
 
-### Project Structure
+### API Endpoints
 
-```
-.
-├── .github/workflows/pull-request.yml   # GitHub Actions workflow
-├── node_modules/                      # Node modules (not in repo)
-├── src/                              # Source code
-│   └── index.ts                    # Main application file
-├── test/                             # Unit tests
-│   └── unit/                         # Unit test files
-│       ├── setup.ts                  # Test setup
-│       └── index.test.ts             # Example test file
-├── .gitignore                         # Files ignored by Git
-├── .npmrc                             # npm configuration
-├── .nvmrc                             # Node.js version specification
-├── biome.json                         # Biome configuration
-├── docker-compose.yml                 # Docker Compose configuration
-├── Dockerfile                         # Docker configuration
-├── lefthook.yml                       # Lefthook configuration
-├── package.json                       # Project configuration
-├── pnpm-lock.yaml                     # Lock file for dependencies
-├── README.md                          # This file
-├── tsconfig.build.json                # TypeScript build configuration
-├── tsconfig.json                      # TypeScript configuration
-├── vitest.config.mts                  # Vitest configuration
-```
+*   **`GET /captcha`:** Creates a new captcha and returns its ID and SVG bas64 image.
+*   **`GET /captcha/:id`:** Retrieves a captcha by its ID. Returns a 404 if the captcha is not found.
+*   **`POST /captcha/validate`:** Validates a captcha.  Expects a JSON body with `id` and `value` properties. Returns `{ valid: true }` or `{ valid: false }`. Returns a 404 if the captcha is not found.
 
-### Contributing
+### Testing the API
 
-Contributions are welcome! Please open an issue or submit a pull request.
+An HTML page (`basic-frontend.html`) is included for easy testing of the API endpoints directly in your browser.  Simply open `basic-frontend.html` in your browser after starting the server.  The page provides a user interface to generate, display, and validate captchas.
