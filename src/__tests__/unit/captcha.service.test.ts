@@ -25,8 +25,8 @@ describe('CaptchaService', () => {
 		service = new CaptchaService(mockCaptchaRepository);
 	});
 
-	it('should create a captcha', () => {
-		const result = service.createCaptcha();
+	it('should create a captcha', async () => {
+		const result = await service.createCaptcha();
 
 		expect(mockedSvgCaptcha.create).toHaveBeenCalledTimes(1);
 		expect(mockCaptchaRepository.save).toHaveBeenCalledWith(
@@ -43,7 +43,7 @@ describe('CaptchaService', () => {
 		});
 	});
 
-	it('should get a captcha by ID', () => {
+	it('should get a captcha by ID', async () => {
 		const mockCaptcha: Captcha = {
 			id: 'test-id',
 			text: 'test-text',
@@ -51,21 +51,21 @@ describe('CaptchaService', () => {
 		};
 		(mockCaptchaRepository.get as any).mockReturnValue(mockCaptcha);
 
-		const result = service.getCaptcha('test-id');
+		const result = await service.getCaptcha('test-id');
 
 		expect(mockCaptchaRepository.get).toHaveBeenCalledWith('test-id');
 		expect(result).toEqual({ id: 'test-id', data: 'test-data' });
 	});
 
-	it('should throw an error if captcha is not found (getCaptcha)', () => {
+	it('should throw an error if captcha is not found (getCaptcha)', async () => {
 		(mockCaptchaRepository.get as any).mockReturnValue(undefined);
 
-		expect(() => service.getCaptcha('nonexistent-id')).toThrowError(
-			'Captcha not found',
-		);
+		await expect(() =>
+			service.getCaptcha('nonexistent-id'),
+		).rejects.toThrowError('Captcha not found');
 	});
 
-	it('should validate a captcha correctly', () => {
+	it('should validate a captcha correctly', async () => {
 		const mockCaptcha: Captcha = {
 			id: 'test-id',
 			text: 'test-text',
@@ -73,14 +73,14 @@ describe('CaptchaService', () => {
 		};
 		(mockCaptchaRepository.get as any).mockReturnValue(mockCaptcha);
 
-		const isValid = service.validateCaptcha('test-id', 'test-text');
+		const isValid = await service.validateCaptcha('test-id', 'test-text');
 
 		expect(mockCaptchaRepository.get).toHaveBeenCalledWith('test-id');
 		expect(isValid).toBe(true);
 		expect(mockCaptchaRepository.delete).toHaveBeenCalledWith('test-id'); // Check deletion
 	});
 
-	it('should return false for invalid captcha value', () => {
+	it('should return false for invalid captcha value', async () => {
 		const mockCaptcha: Captcha = {
 			id: 'test-id',
 			text: 'test-text',
@@ -88,17 +88,18 @@ describe('CaptchaService', () => {
 		};
 		(mockCaptchaRepository.get as any).mockReturnValue(mockCaptcha);
 
-		const isValid = service.validateCaptcha('test-id', 'wrong-value');
+		const isValid = await service.validateCaptcha('test-id', 'wrong-value');
 
 		expect(mockCaptchaRepository.get).toHaveBeenCalledWith('test-id');
 		expect(isValid).toBe(false);
 		expect(mockCaptchaRepository.delete).not.toHaveBeenCalled(); // Should not delete
 	});
 
-	it('should throw an error if captcha is not found (validateCaptcha)', () => {
+	it('should throw an error if captcha is not found (validateCaptcha)', async () => {
 		(mockCaptchaRepository.get as any).mockReturnValue(undefined);
-		expect(() =>
+
+		await expect(() =>
 			service.validateCaptcha('nonexistent-id', 'some-value'),
-		).toThrowError('Captcha not found');
+		).rejects.toThrowError('Captcha not found');
 	});
 });

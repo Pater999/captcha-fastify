@@ -1,7 +1,7 @@
 import type { Captcha } from '../types';
 
 export interface ICaptchaRepository {
-	save(captcha: Captcha): void;
-	get(id: string): Captcha | undefined;
-	delete(id: string): void;
+	save(captcha: Captcha): Promise<void>;
+	get(id: string): Promise<Captcha | null>;
+	delete(id: string): Promise<void>;
 }
