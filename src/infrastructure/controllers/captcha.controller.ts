@@ -6,7 +6,7 @@ export class CaptchaController {
 
 	async createCaptcha(req: FastifyRequest, reply: FastifyReply) {
 		try {
-			const captcha = this.captchaService.createCaptcha();
+			const captcha = await this.captchaService.createCaptcha();
 			return reply.send(captcha);
 		} catch (error) {
 			reply.status(500).send({ message: 'Internal Server Error' });
@@ -19,7 +19,7 @@ export class CaptchaController {
 	) {
 		try {
 			const { id } = req.params;
-			const captcha = this.captchaService.getCaptcha(id);
+			const captcha = await this.captchaService.getCaptcha(id);
 			return reply.send(captcha);
 		} catch (error) {
 			if (error instanceof Error && error.message === 'Captcha not found') {
@@ -36,7 +36,7 @@ export class CaptchaController {
 	) {
 		try {
 			const { id, value } = req.body;
-			const isValid = this.captchaService.validateCaptcha(id, value);
+			const isValid = await this.captchaService.validateCaptcha(id, value);
 			return reply.send({ valid: isValid });
 		} catch (error) {
 			if (error instanceof Error && error.message === 'Captcha not found') {

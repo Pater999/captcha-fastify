@@ -13,14 +13,14 @@ export class CaptchaService {
 		private options?: SvgCaptchaOption,
 	) {}
 
-	createCaptcha() {
+	async createCaptcha() {
 		const generatedCaptcha = svgCaptcha.create(this.options);
 		const captcha = {
 			data: btoa(generatedCaptcha.data),
 			text: generatedCaptcha.text,
 			id: crypto.randomUUID(),
 		};
-		this.captchaRepository.save(captcha);
+		await this.captchaRepository.save(captcha);
 
 		return {
 			id: captcha.id,
@@ -28,8 +28,8 @@ export class CaptchaService {
 		};
 	}
 
-	getCaptcha(id: string) {
-		const foundedCaptcha = this.captchaRepository.get(id);
+	async getCaptcha(id: string) {
+		const foundedCaptcha = await this.captchaRepository.get(id);
 		if (!foundedCaptcha) {
 			throw new Error('Captcha not found');
 		}
@@ -40,8 +40,8 @@ export class CaptchaService {
 		};
 	}
 
-	validateCaptcha(id: string, value: string) {
-		const foundedCaptcha = this.captchaRepository.get(id);
+	async validateCaptcha(id: string, value: string) {
+		const foundedCaptcha = await this.captchaRepository.get(id);
 		if (!foundedCaptcha) {
 			throw new Error('Captcha not found');
 		}

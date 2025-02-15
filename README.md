@@ -12,7 +12,7 @@ This repository provides a Captcha service built with Node.js, TypeScript, and F
     *   **Routes:** Defines the API endpoints using Fastify.
 *   **Dependency Injection:**  Uses manual dependency injection for loose coupling and easy testing.
 *   **SVG Captcha Generation:** Uses the `svg-captcha` library to generate secure and customizable captchas.
-*   **In-Memory Captcha Storage:** Uses an in-memory store for captcha data (easily swappable for a persistent store like Redis, PostgreSQL, etc.).
+*   **PostgreSQL Database:** Uses PostgreSQL for persistent captcha storage via Knex.js.
 *   **Vitest:**  A fast and easy-to-use unit testing framework. Includes comprehensive unit tests for the service and controller layers.
 *   **Biome.js:** A fast and opinionated linter and formatter for consistent code style.
 *   **Pre-commit Hooks (Lefthook):**  Automates code checks (linting, formatting, testing) before each commit to ensure code quality.
@@ -44,7 +44,25 @@ This repository provides a Captcha service built with Node.js, TypeScript, and F
     pnpm install
     ```
 
+3. **Create a `.env` file:**
+
+   Copy the `.env.example` file to a new file named `.env` in the project root:
+
+    ```bash
+    cp .env.example .env
+    ```
+
+    Then, edit the `.env` file and set the appropriate values for your environment (especially database credentials if you are not using the default values).
+
 ### Development
+
+*   Start the Database (in a separate terminal):
+
+    This command starts *only* the PostgreSQL database container in detached mode.  This is necessary *before* running the application in development mode.
+
+    ```bash
+    docker-compose up -d db
+    ```
 
 *   Running the app in development mode:
 
@@ -86,3 +104,12 @@ This repository provides a Captcha service built with Node.js, TypeScript, and F
 ### Testing the API
 
 An HTML page (`basic-frontend.html`) is included for easy testing of the API endpoints directly in your browser.  Simply open `basic-frontend.html` in your browser after starting the server.  The page provides a user interface to generate, display, and validate captchas.
+
+### Docker Compose
+
+The `docker-compose.yml` defines two services:
+
+*   **`app`:** Your Fastify application.
+*   **`db`:** A PostgreSQL database.
+
+`app` depends on `db`. Database data is persisted via a Docker volume. Environment variables configure the database connection. The `init.sql` script initializes the database.
